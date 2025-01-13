@@ -16,8 +16,7 @@ func TestCreatePatientHandler(t *testing.T) {
 
 	urlPath := "/v1/patient"
 
-	t.Run("Successful request", func(t *testing.T) {
-		// Arrange
+	t.Run("Valid request", func(t *testing.T) {
 		patient := data.Patient{
 			FirstName:   "Ahmad",
 			LastName:    "Abuziad",
@@ -26,10 +25,8 @@ func TestCreatePatientHandler(t *testing.T) {
 			Notes:       "Gluten Allergic",
 		}
 
-		// Act
 		statusCode, _, body := ts.postJSON(t, urlPath, patient)
 
-		// Assert
 		assert.Equal(t, statusCode, http.StatusCreated)
 
 		gotPatient := unmarshalPatient(t, body)
@@ -38,6 +35,27 @@ func TestCreatePatientHandler(t *testing.T) {
 		assert.Equal(t, gotPatient.DateOfBirth, patient.DateOfBirth)
 		assert.Equal(t, gotPatient.Gender, gotPatient.Gender)
 		assert.Equal(t, gotPatient.Notes, patient.Notes)
+	})
+
+	t.Run("Invalid JSON body", func(t *testing.T) {
+		statusCode, _, body := ts.postJSON(t, urlPath, "{'invalid': json")
+
+		assert.Equal(t, statusCode, http.StatusBadRequest)
+		assert.StringContains(t, string(body), "body contains incorrect JSON type")
+	})
+
+	t.Run("Invalid passing extra fields", func(t *testing.T) {
+		input := struct {
+			data.Patient
+			ExtraField string `json:"extra_field"`
+		}{
+			ExtraField: "extra data",
+		}
+
+		statusCode, _, body := ts.postJSON(t, urlPath, input)
+
+		assert.Equal(t, statusCode, http.StatusBadRequest)
+		assert.StringContains(t, string(body), `body contains unknown key "extra_field"`)
 	})
 }
 

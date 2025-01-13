@@ -19,7 +19,22 @@ func main() {
 }
 
 func createPatientHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusCreated)
+
+	var input struct {
+		FirstName   string    `json:"first_name"`
+		LastName    string    `json:"last_name"`
+		DateOfBirth time.Time `json:"date_of_birth"`
+		Gender      string    `json:"gender"`
+		Notes       string    `json:"notes"`
+	}
+
+	err := readJSON(w, r, &input)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 	patient := data.Patient{
 		FirstName:   "Ahmad",
 		LastName:    "Abuziad",
@@ -30,6 +45,7 @@ func createPatientHandler(w http.ResponseWriter, r *http.Request) {
 
 	js, _ := json.Marshal(envelope{"patient": patient})
 
+	w.WriteHeader(http.StatusCreated)
 	w.Write(js)
 }
 
