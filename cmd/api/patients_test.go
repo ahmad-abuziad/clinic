@@ -58,6 +58,13 @@ func TestCreatePatientHandler(t *testing.T) {
 		assert.Equal(t, statusCode, http.StatusBadRequest)
 		assert.StringContains(t, string(body), "error")
 	})
+
+	t.Run("422 Unprocessable Content", func(t *testing.T) {
+		statusCode, _, body := ts.postJSON(t, urlPath, `{"first_name":""}`)
+
+		assert.Equal(t, statusCode, http.StatusUnprocessableEntity)
+		assert.StringContains(t, string(body), `"first_name": "must be provided"`)
+	})
 }
 
 func unmarshalPatient(t *testing.T, b []byte) data.Patient {

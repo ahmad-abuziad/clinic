@@ -22,14 +22,17 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// validate
+	patient := &data.Patient{
+		FirstName:   input.FirstName,
+		LastName:    input.LastName,
+		DateOfBirth: input.DateOfBirth,
+		Gender:      input.Gender,
+		Notes:       input.Notes,
+	}
 
-	patient := data.Patient{
-		FirstName:   "Ahmad",
-		LastName:    "Abuziad",
-		DateOfBirth: time.Date(1993, 6, 8, 0, 0, 0, 0, time.UTC),
-		Gender:      "M",
-		Notes:       "Gluten Allergic",
+	if errors := data.ValidatePatient(patient); len(errors) > 0 {
+		app.failedValidationResponse(w, r, errors)
+		return
 	}
 
 	writeJSON(w, http.StatusCreated, envelope{"patient": patient}, nil)
