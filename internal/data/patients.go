@@ -1,6 +1,10 @@
 package data
 
-import "time"
+import (
+	"time"
+
+	"github.com/ahmad-abuziad/clinic/internal/validator"
+)
 
 type Patient struct {
 	FirstName   string    `json:"first_name"`
@@ -10,15 +14,10 @@ type Patient struct {
 	Notes       string    `json:"notes"`
 }
 
-func ValidatePatient(patient *Patient) map[string]string {
-	errors := make(map[string]string)
-	if patient.FirstName == "" {
-		errors["first_name"] = "must be provided"
-	}
+func ValidatePatient(v *validator.Validator, patient *Patient) {
+	v.Check(patient.FirstName != "", "first_name", "must be provided")
+	v.Check(len(patient.FirstName) <= 50, "first_name", "must not be more than 50 bytes long")
 
-	if patient.LastName == "" {
-		errors["last_name"] = "must be provided"
-	}
-
-	return errors
+	v.Check(patient.LastName != "", "last_name", "must be provided")
+	v.Check(len(patient.LastName) <= 50, "last_name", "must not be more than 50 bytes long")
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/ahmad-abuziad/clinic/internal/data"
+	"github.com/ahmad-abuziad/clinic/internal/validator"
 )
 
 func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,8 +31,10 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 		Notes:       input.Notes,
 	}
 
-	if errors := data.ValidatePatient(patient); len(errors) > 0 {
-		app.failedValidationResponse(w, r, errors)
+	v := validator.New()
+
+	if data.ValidatePatient(v, patient); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
