@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -9,7 +8,6 @@ import (
 )
 
 func createPatientHandler(w http.ResponseWriter, r *http.Request) {
-
 	var input struct {
 		FirstName   string    `json:"first_name"`
 		LastName    string    `json:"last_name"`
@@ -20,10 +18,11 @@ func createPatientHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := readJSON(w, r, &input)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		badRequest(w, err)
 		return
 	}
+
+	// validate
 
 	patient := data.Patient{
 		FirstName:   "Ahmad",
@@ -33,8 +32,5 @@ func createPatientHandler(w http.ResponseWriter, r *http.Request) {
 		Notes:       "Gluten Allergic",
 	}
 
-	js, _ := json.Marshal(envelope{"patient": patient})
-
-	w.WriteHeader(http.StatusCreated)
-	w.Write(js)
+	writeJSON(w, http.StatusCreated, envelope{"patient": patient}, nil)
 }
