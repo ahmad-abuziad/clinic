@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"log/slog"
 	"net/http"
 	"testing"
 	"time"
@@ -12,7 +14,10 @@ import (
 )
 
 func TestCreatePatientHandler(t *testing.T) {
-	ts := newTestServer(t, routes())
+	app := application{
+		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+	}
+	ts := newTestServer(t, app.routes())
 	defer ts.Close()
 
 	urlPath := "/v1/patient"

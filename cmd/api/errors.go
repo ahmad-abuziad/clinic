@@ -2,10 +2,27 @@ package main
 
 import "net/http"
 
-func badRequest(w http.ResponseWriter, err error) {
+func (app *application) logError(r *http.Request, err error) {
+	var (
+		method = r.Method
+		uri    = r.URL.RequestURI()
+	)
+
+	app.logger.Error(err.Error(), "method", method, "uri", uri)
+}
+
+func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message string) {
 	env := envelope{
-		"error": err.Error(),
+		"error": message,
 	}
 
-	writeJSON(w, http.StatusBadRequest, env, nil)
+	err := writeJSON(w, status, env, nil)
+	if err != nil {
+		app.logError(r, err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
+func (app *application) badRequest(w http.ResponseWriter, r *http.Request, err error) {
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }

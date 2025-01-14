@@ -7,7 +7,7 @@ import (
 	"github.com/ahmad-abuziad/clinic/internal/data"
 )
 
-func createPatientHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		FirstName   string    `json:"first_name"`
 		LastName    string    `json:"last_name"`
@@ -18,7 +18,7 @@ func createPatientHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := readJSON(w, r, &input)
 	if err != nil {
-		badRequest(w, err)
+		app.badRequest(w, r, err)
 		return
 	}
 
