@@ -1,8 +1,13 @@
 package assert
 
 import (
+	"regexp"
 	"strings"
 	"testing"
+)
+
+var (
+	LogXP = regexp.MustCompile("")
 )
 
 func Equal[T comparable](t *testing.T, got, want T) {
@@ -35,4 +40,10 @@ func NonNilError(t *testing.T, got error) {
 	if got == nil {
 		t.Errorf("got: nil; want: error")
 	}
+}
+
+func StringMatches(t *testing.T, got string, wantXP *regexp.Regexp) bool {
+	t.Helper()
+
+	return wantXP.MatchString(got)
 }
