@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -23,15 +24,25 @@ func (ts *testServer) postJSON(t *testing.T, urlPath string, body string) (int, 
 	t.Helper()
 
 	rs, err := ts.Client().Post(ts.URL+urlPath, "application/json", bytes.NewReader([]byte(body)))
-	if err != nil {
-		t.Fatal(err)
-	}
+	check(t, err)
 
 	defer rs.Body.Close()
 	rsBody, err := io.ReadAll(rs.Body)
+	check(t, err)
+
+	return rs.StatusCode, rs.Header, rsBody
+}
+
+func check(t *testing.T, err error) {
+	t.Helper()
+
 	if err != nil {
 		t.Fatal(err)
 	}
+}
 
-	return rs.StatusCode, rs.Header, rsBody
+type errorReader struct{}
+
+func (e *errorReader) Read(p []byte) (n int, err error) {
+	return 0, errors.New("custom error")
 }

@@ -74,9 +74,7 @@ func unmarshalPatient(t *testing.T, b []byte) data.Patient {
 		Patient data.Patient `json:"patient"`
 	}
 	err := json.Unmarshal(b, &jsRes)
-	if err != nil {
-		t.Fatal(err)
-	}
+	check(t, err)
 
 	return jsRes.Patient
 }
