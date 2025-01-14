@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -20,16 +19,10 @@ func newTestServer(t *testing.T, h http.Handler) *testServer {
 	return &testServer{srv}
 }
 
-func (ts *testServer) postJSON(t *testing.T, urlPath string, data any) (int, http.Header, []byte) {
+func (ts *testServer) postJSON(t *testing.T, urlPath string, body string) (int, http.Header, []byte) {
 	t.Helper()
 
-	js, err := json.Marshal(data)
-	if err != nil {
-		t.Fatal(err)
-	}
-	body := bytes.NewReader(js)
-
-	rs, err := ts.Client().Post(ts.URL+urlPath, "application/json", body)
+	rs, err := ts.Client().Post(ts.URL+urlPath, "application/json", bytes.NewReader([]byte(body)))
 	if err != nil {
 		t.Fatal(err)
 	}
