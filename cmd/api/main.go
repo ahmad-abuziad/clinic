@@ -10,6 +10,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/ahmad-abuziad/clinic/internal/data"
 	_ "github.com/lib/pq"
 )
 
@@ -26,7 +27,7 @@ type config struct {
 
 type application struct {
 	config config
-	port   string
+	models data.Models
 	logger *slog.Logger
 }
 
@@ -57,7 +58,7 @@ func main() {
 
 	app := &application{
 		config: cfg,
-		port:   ":4000",
+		models: data.NewModels(db),
 		logger: logger,
 	}
 

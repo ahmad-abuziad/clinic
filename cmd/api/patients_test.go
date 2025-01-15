@@ -36,9 +36,10 @@ func TestCreatePatientHandler(t *testing.T) {
 			"Notes": %q
 		}`, validFirstName, validLastName, validDateOfBirth.Format(time.RFC3339), validGender, validNotes)
 
-		statusCode, _, body := ts.postJSON(t, urlPath, reqBody)
+		statusCode, headers, body := ts.postJSON(t, urlPath, reqBody)
 
 		assert.Equal(t, statusCode, http.StatusCreated)
+		assert.Equal(t, headers.Get("Location"), "/v1/patients/2")
 
 		gotPatient := unmarshalPatient(t, body)
 		assert.Equal(t, gotPatient.FirstName, validFirstName)
@@ -46,6 +47,8 @@ func TestCreatePatientHandler(t *testing.T) {
 		assert.Equal(t, gotPatient.DateOfBirth, validDateOfBirth)
 		assert.Equal(t, gotPatient.Gender, validGender)
 		assert.Equal(t, gotPatient.Notes, validNotes)
+		assert.Equal(t, gotPatient.ID, 2)
+		assert.Equal(t, gotPatient.CreatedAt.IsZero(), true)
 	})
 
 	t.Run("400 Bad Request", func(t *testing.T) {

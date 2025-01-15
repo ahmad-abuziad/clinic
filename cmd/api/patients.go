@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -38,7 +39,16 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err = writeJSON(w, http.StatusCreated, envelope{"patient": patient}, nil)
+	err = app.models.Patients.Insert(patient)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/patients/%d", patient.ID))
+
+	err = writeJSON(w, http.StatusCreated, envelope{"patient": patient}, headers)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

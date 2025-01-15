@@ -1,0 +1,1 @@
+INSERT INTO patients (first_name, last_name, date_of_birth, gender) VALUES ('Ahmad', 'Abuziad', '1993-06-08', 'M');

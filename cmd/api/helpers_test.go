@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path"
 	"strings"
 	"testing"
 
@@ -13,7 +14,7 @@ import (
 
 func TestReadJSON(t *testing.T) {
 
-	largeBody, err := os.ReadFile("largefile.json")
+	largeBody, err := os.ReadFile(path.Join("testdata", "largefile.json"))
 	check(t, err)
 
 	type dst struct {

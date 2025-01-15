@@ -2,21 +2,28 @@ package main
 
 import (
 	"bytes"
+	"database/sql"
 	"errors"
 	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path"
+	"strings"
 	"testing"
+
+	"github.com/ahmad-abuziad/clinic/internal/data"
 )
 
 func newTestApplication(t *testing.T) (*application, *bytes.Buffer) {
 	t.Helper()
 
 	var logBuf bytes.Buffer
-
+	db := newTestDB(t)
 	app := &application{
 		logger: slog.New(slog.NewTextHandler(&logBuf, nil)),
+		models: data.NewModels(db),
 	}
 
 	return app, &logBuf
@@ -63,4 +70,64 @@ type errorReader struct{}
 
 func (e *errorReader) Read(p []byte) (n int, err error) {
 	return 0, errors.New("custom error")
+}
+
+func newTestDB(t *testing.T) *sql.DB {
+	db, err := sql.Open("postgres", os.Getenv("TEST_CLINIC_DB_DSN"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	migPath := path.Join("..", "..", "migrations")
+	c, err := os.ReadDir(migPath)
+	if err != nil {
+		db.Close()
+		t.Fatal(err)
+	}
+
+	ups := []string{}
+	downs := []string{}
+	for _, entry := range c {
+		if strings.HasSuffix(entry.Name(), ".up.sql") {
+			ups = append(ups, path.Join(migPath, entry.Name()))
+		}
+		if strings.HasSuffix(entry.Name(), ".down.sql") {
+			downs = append(downs, path.Join(migPath, entry.Name()))
+		}
+	}
+	ups = append(ups, path.Join("testdata", "setup.sql"))
+	downs = append(downs, path.Join("testdata", "teardown.sql"))
+
+	for _, path := range ups {
+		script, err := os.ReadFile(path)
+		if err != nil {
+			db.Close()
+			t.Fatal(err)
+		}
+		_, err = db.Exec(string(script))
+		if err != nil {
+			db.Close()
+			t.Fatal(err)
+		}
+	}
+
+	t.Cleanup(func() {
+		defer db.Close()
+
+		for i := len(downs) - 1; i >= 0; i-- {
+			path := downs[i]
+			script, err := os.ReadFile(path)
+			if err != nil {
+				db.Close()
+				t.Fatal(err)
+			}
+			_, err = db.Exec(string(script))
+			if err != nil {
+				db.Close()
+				t.Fatal(err)
+			}
+		}
+	})
+
+	return db
 }
