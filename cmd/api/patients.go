@@ -38,5 +38,8 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, envelope{"patient": patient}, nil)
+	err = writeJSON(w, http.StatusCreated, envelope{"patient": patient}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
