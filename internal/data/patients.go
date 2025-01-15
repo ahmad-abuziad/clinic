@@ -13,8 +13,8 @@ type Patient struct {
 	CreatedAt   time.Time `json:"-"`
 	FirstName   string    `json:"first_name"`
 	LastName    string    `json:"last_name"`
-	DateOfBirth time.Time `json:"date_of_birth"`
 	Gender      string    `json:"gender"`
+	DateOfBirth time.Time `json:"date_of_birth"`
 	Notes       string    `json:"notes"`
 }
 
@@ -24,6 +24,13 @@ func ValidatePatient(v *validator.Validator, patient *Patient) {
 
 	v.Check(patient.LastName != "", "last_name", "must be provided")
 	v.Check(len(patient.LastName) <= 50, "last_name", "must not be more than 50 bytes long")
+
+	v.Check(patient.Gender != "", "gender", "must be provided")
+	v.Check(validator.PermittedValue(patient.Gender, "M", "F"), "gender", "must be M or F only")
+
+	v.Check(patient.DateOfBirth.After(time.Date(1900, time.January, 1, 0, 0, 0, 0, time.UTC)), "date_of_birth", "must not be before 1900-01-01")
+	v.Check(patient.DateOfBirth.Before(time.Now()), "date_of_birth", "must not be in the future")
+
 }
 
 type PatientModel struct {
