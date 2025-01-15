@@ -7,7 +7,6 @@ import (
 )
 
 func TestValidator(t *testing.T) {
-
 	v := New()
 
 	v.Check(true, "valid_field", "should not be added to errors")

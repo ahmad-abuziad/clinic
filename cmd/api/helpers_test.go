@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -17,9 +16,20 @@ func TestReadJSON(t *testing.T) {
 	largeBody, err := os.ReadFile("largefile.json")
 	check(t, err)
 
-	var dst struct {
+	type dst struct {
 		FieldName string `json:"field_name"`
 	}
+
+	t.Run("Valid", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", "/", strings.NewReader(`{"field_name": "field value"}`))
+
+		d := dst{}
+		err := readJSON(rr, r, &d)
+
+		assert.NilError(t, err)
+		assert.Equal(t, d.FieldName, "field value")
+	})
 
 	tests := []struct {
 		name      string
@@ -77,7 +87,7 @@ func TestReadJSON(t *testing.T) {
 			rr := httptest.NewRecorder()
 			body := strings.NewReader(tt.body)
 			r := httptest.NewRequest("POST", "/", body)
-			err := readJSON(rr, r, &dst)
+			err := readJSON(rr, r, &dst{})
 			assert.Equal(t, err.Error(), tt.wantError)
 		})
 	}
@@ -90,7 +100,7 @@ func TestReadJSON(t *testing.T) {
 		rr := httptest.NewRecorder()
 		body := strings.NewReader("{}")
 		r := httptest.NewRequest("POST", "/", body)
-		readJSON(rr, r, dst)
+		readJSON(rr, r, dst{})
 		t.Error("Should have panicked")
 	})
 
@@ -116,12 +126,10 @@ func TestWriteJSON(t *testing.T) {
 		headers.Set("Location", "/location")
 
 		err := writeJSON(rr, http.StatusCreated, envelope{"key": "value"}, headers)
-		check(t, err)
+		assert.NilError(t, err)
 
 		rs := rr.Result()
-		defer rs.Body.Close()
-		body, err := io.ReadAll(rs.Body)
-		check(t, err)
+		body := read(t, rs.Body)
 
 		var m map[string]string
 		err = json.Unmarshal(body, &m)

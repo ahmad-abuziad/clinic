@@ -13,7 +13,6 @@ type application struct {
 }
 
 func main() {
-
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	app := &application{
 		port:   ":4000",
@@ -25,12 +24,4 @@ func main() {
 	err := http.ListenAndServe(app.port, app.routes())
 
 	fmt.Println(err.Error())
-}
-
-func (app *application) routes() http.Handler {
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("POST /v1/patient", app.createPatientHandler)
-
-	return mux
 }
