@@ -16,7 +16,6 @@ type Patient struct {
 	LastName    string    `json:"last_name"`
 	Gender      string    `json:"gender"`
 	DateOfBirth time.Time `json:"date_of_birth"`
-	Notes       string    `json:"notes"`
 }
 
 func ValidatePatient(v *validator.Validator, patient *Patient) {

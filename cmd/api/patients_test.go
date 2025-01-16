@@ -24,7 +24,6 @@ func TestCreatePatientHandler(t *testing.T) {
 			validLastName    = "Abuziad"
 			validDateOfBirth = time.Date(1993, 6, 8, 0, 0, 0, 0, time.UTC)
 			validGender      = "M"
-			validNotes       = "Gluten Allergic"
 		)
 
 		reqBody := fmt.Sprintf(`
@@ -33,8 +32,7 @@ func TestCreatePatientHandler(t *testing.T) {
 			"last_name": %q,
 			"date_of_birth": %q,
 			"Gender": %q,
-			"Notes": %q
-		}`, validFirstName, validLastName, validDateOfBirth.Format(time.RFC3339), validGender, validNotes)
+		}`, validFirstName, validLastName, validDateOfBirth.Format(time.RFC3339), validGender)
 
 		statusCode, headers, body := ts.postJSON(t, urlPath, reqBody)
 
@@ -46,7 +44,6 @@ func TestCreatePatientHandler(t *testing.T) {
 		assert.Equal(t, gotPatient.LastName, validLastName)
 		assert.Equal(t, gotPatient.Gender, validGender)
 		assert.Equal(t, gotPatient.DateOfBirth, validDateOfBirth)
-		assert.Equal(t, gotPatient.Notes, validNotes)
 		assert.Equal(t, gotPatient.ID, 2)
 		assert.Equal(t, gotPatient.CreatedAt.IsZero(), true)
 	})

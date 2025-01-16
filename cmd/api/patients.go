@@ -16,7 +16,6 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 		LastName    string    `json:"last_name"`
 		DateOfBirth time.Time `json:"date_of_birth"`
 		Gender      string    `json:"gender"`
-		Notes       string    `json:"notes"`
 	}
 
 	err := readJSON(w, r, &input)
@@ -30,7 +29,6 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 		LastName:    input.LastName,
 		DateOfBirth: input.DateOfBirth,
 		Gender:      input.Gender,
-		Notes:       input.Notes,
 	}
 
 	v := validator.New()
