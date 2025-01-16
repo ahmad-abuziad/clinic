@@ -79,4 +79,17 @@ func TestResponses(t *testing.T) {
 		assert.Equal(t, rs.StatusCode, http.StatusUnprocessableEntity)
 		assert.StringContains(t, string(body), `"field": "this field got an error"`)
 	})
+
+	t.Run("notFoundResponse", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		r := httptest.NewRequest("GET", "/", nil)
+
+		app.notFoundResponse(rr, r)
+
+		rs := rr.Result()
+		body := read(t, rs.Body)
+
+		assert.Equal(t, rs.StatusCode, http.StatusNotFound)
+		assert.StringContains(t, string(body), `"error": "the requested resource could not be found`)
+	})
 }
