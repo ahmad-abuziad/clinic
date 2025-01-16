@@ -29,6 +29,11 @@ func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
 }
 
+func (app *application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
+	message := "the requested resource could not be found"
+	app.errorResponse(w, r, http.StatusNotFound, message)
+}
+
 func (app *application) logError(r *http.Request, err error) {
 	var (
 		method = r.Method

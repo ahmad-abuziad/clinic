@@ -51,6 +51,17 @@ func (ts *testServer) postJSON(t *testing.T, urlPath string, body string) (int, 
 	return rs.StatusCode, rs.Header, rsBody
 }
 
+func (ts *testServer) getJSON(t *testing.T, urlPath string) (int, http.Header, []byte) {
+	t.Helper()
+
+	rs, err := ts.Client().Get(ts.URL + urlPath)
+	check(t, err)
+
+	rsBody := read(t, rs.Body)
+
+	return rs.StatusCode, rs.Header, rsBody
+}
+
 func check(t *testing.T, err error) {
 	t.Helper()
 

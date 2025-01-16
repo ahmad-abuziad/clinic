@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/ahmad-abuziad/clinic/internal/validator"
@@ -39,14 +40,50 @@ type PatientModel struct {
 
 func (m PatientModel) Insert(patient *Patient) error {
 	query := `
-	INSERT INTO patients (first_name, last_name, date_of_birth, gender)
+	INSERT INTO patients (first_name, last_name, gender, date_of_birth)
 	VALUES ($1, $2, $3, $4)
 	RETURNING id, created_at`
 
-	args := []any{patient.FirstName, patient.LastName, patient.DateOfBirth, patient.Gender}
+	args := []any{patient.FirstName, patient.LastName, patient.Gender, patient.DateOfBirth}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	return m.DB.QueryRowContext(ctx, query, args...).Scan(&patient.ID, &patient.CreatedAt)
+}
+
+func (m PatientModel) Get(id int64) (*Patient, error) {
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+
+	query := `
+	SELECT id, created_at, first_name, last_name, gender, date_of_birth
+	FROM patients
+	WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var patient Patient
+
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
+		&patient.ID,
+		&patient.CreatedAt,
+		&patient.FirstName,
+		&patient.LastName,
+		&patient.Gender,
+		&patient.DateOfBirth,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &patient, nil
 }

@@ -16,7 +16,7 @@ func TestCreatePatientHandler(t *testing.T) {
 	ts := newTestServer(t, app.routes())
 	defer ts.Close()
 
-	urlPath := "/v1/patient"
+	urlPath := "/v1/patients"
 
 	t.Run("201 Created", func(t *testing.T) {
 		var (
@@ -44,8 +44,8 @@ func TestCreatePatientHandler(t *testing.T) {
 		gotPatient := unmarshalPatient(t, body)
 		assert.Equal(t, gotPatient.FirstName, validFirstName)
 		assert.Equal(t, gotPatient.LastName, validLastName)
-		assert.Equal(t, gotPatient.DateOfBirth, validDateOfBirth)
 		assert.Equal(t, gotPatient.Gender, validGender)
+		assert.Equal(t, gotPatient.DateOfBirth, validDateOfBirth)
 		assert.Equal(t, gotPatient.Notes, validNotes)
 		assert.Equal(t, gotPatient.ID, 2)
 		assert.Equal(t, gotPatient.CreatedAt.IsZero(), true)
@@ -63,6 +63,43 @@ func TestCreatePatientHandler(t *testing.T) {
 
 		assert.Equal(t, statusCode, http.StatusUnprocessableEntity)
 		assert.StringContains(t, string(body), `"first_name": "must be provided"`)
+	})
+}
+
+func TestGetPatientHandler(t *testing.T) {
+	t.Run("valid", func(t *testing.T) {
+		app, _ := newTestApplication(t)
+		srv := newTestServer(t, app.routes())
+		defer srv.Close()
+
+		statusCode, _, body := srv.getJSON(t, "/v1/patients/1")
+		assert.Equal(t, statusCode, http.StatusOK)
+
+		gotPatient := unmarshalPatient(t, body)
+		assert.Equal(t, gotPatient.FirstName, "Ahmad")
+		assert.Equal(t, gotPatient.LastName, "Abuziad")
+		assert.Equal(t, gotPatient.Gender, "M")
+		assert.Equal(t, gotPatient.DateOfBirth, time.Date(1993, 6, 8, 0, 0, 0, 0, time.UTC))
+		assert.Equal(t, gotPatient.ID, 1)
+		assert.Equal(t, gotPatient.CreatedAt.IsZero(), true)
+	})
+
+	t.Run("invalid id", func(t *testing.T) {
+		app, _ := newTestApplication(t)
+		srv := newTestServer(t, app.routes())
+		defer srv.Close()
+
+		statusCode, _, _ := srv.getJSON(t, "/v1/patients/invalid_id")
+		assert.Equal(t, statusCode, http.StatusNotFound)
+	})
+
+	t.Run("not found id 5", func(t *testing.T) {
+		app, _ := newTestApplication(t)
+		srv := newTestServer(t, app.routes())
+		defer srv.Close()
+
+		statusCode, _, _ := srv.getJSON(t, "/v1/patients/5")
+		assert.Equal(t, statusCode, http.StatusNotFound)
 	})
 }
 

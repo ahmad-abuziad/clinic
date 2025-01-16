@@ -1,12 +1,10 @@
 # setup
 
+//todo
 
 # decisions
 
-## router - mux: recommendation by the assessment
-| Area      | Decision  |       Reason                  |
-| ---------:| ---------:| ------:                       |
-| Router    | ServeMux  | recommended by the assessment |
+//todo
 
 # test
 
