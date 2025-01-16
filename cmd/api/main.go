@@ -29,6 +29,7 @@ type application struct {
 	config config
 	models data.Models
 	logger *slog.Logger
+	errors httpErrors
 }
 
 func main() {
@@ -60,6 +61,7 @@ func main() {
 		config: cfg,
 		models: data.NewModels(db),
 		logger: logger,
+		errors: newHTTPErrors(logger),
 	}
 
 	srv := &http.Server{

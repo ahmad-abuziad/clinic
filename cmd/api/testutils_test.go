@@ -20,10 +20,12 @@ func newTestApplication(t *testing.T) (*application, *bytes.Buffer) {
 	t.Helper()
 
 	var logBuf bytes.Buffer
+	logger := slog.New(slog.NewTextHandler(&logBuf, nil))
 	db := newTestDB(t)
 	app := &application{
-		logger: slog.New(slog.NewTextHandler(&logBuf, nil)),
+		logger: logger,
 		models: data.NewModels(db),
+		errors: newHTTPErrors(logger),
 	}
 
 	return app, &logBuf

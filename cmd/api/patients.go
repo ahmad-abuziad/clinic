@@ -20,7 +20,7 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 
 	err := readJSON(w, r, &input)
 	if err != nil {
-		app.badRequest(w, r, err)
+		app.errors.badRequest(w, r, err)
 		return
 	}
 
@@ -34,13 +34,13 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 	v := validator.New()
 
 	if data.ValidatePatient(v, patient); !v.Valid() {
-		app.failedValidationResponse(w, r, v.Errors)
+		app.errors.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	err = app.models.Patients.Insert(patient)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.errors.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -49,14 +49,14 @@ func (app *application) createPatientHandler(w http.ResponseWriter, r *http.Requ
 
 	err = writeJSON(w, http.StatusCreated, envelope{"patient": patient}, headers)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.errors.serverErrorResponse(w, r, err)
 	}
 }
 
 func (app *application) getPatientHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := readIDParam(r)
 	if err != nil || id < 1 {
-		app.notFoundResponse(w, r)
+		app.errors.notFoundResponse(w, r)
 		return
 	}
 
@@ -64,15 +64,15 @@ func (app *application) getPatientHandler(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		switch {
 		case errors.Is(err, data.ErrRecordNotFound):
-			app.notFoundResponse(w, r)
+			app.errors.notFoundResponse(w, r)
 		default:
-			app.serverErrorResponse(w, r, err)
+			app.errors.serverErrorResponse(w, r, err)
 		}
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"patient": patient}, nil)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		app.errors.serverErrorResponse(w, r, err)
 	}
 }

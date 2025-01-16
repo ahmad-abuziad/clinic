@@ -31,7 +31,7 @@ func TestCreatePatientHandler(t *testing.T) {
 			"first_name": %q,
 			"last_name": %q,
 			"date_of_birth": %q,
-			"Gender": %q,
+			"Gender": %q
 		}`, validFirstName, validLastName, validDateOfBirth.Format(time.RFC3339), validGender)
 
 		statusCode, headers, body := ts.postJSON(t, urlPath, reqBody)

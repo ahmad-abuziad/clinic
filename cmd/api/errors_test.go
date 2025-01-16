@@ -15,7 +15,7 @@ func TestErrorResponse(t *testing.T) {
 
 		responseRecorder := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/", nil)
-		app.errorResponse(responseRecorder, r, http.StatusBadRequest, "")
+		app.errors.errorResponse(responseRecorder, r, http.StatusBadRequest, "")
 
 		rs := responseRecorder.Result()
 		assert.Equal(t, rs.StatusCode, http.StatusBadRequest)
@@ -26,7 +26,7 @@ func TestErrorResponse(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/", nil)
-		app.errorResponse(rr, r, http.StatusBadRequest, make(chan int))
+		app.errors.errorResponse(rr, r, http.StatusBadRequest, make(chan int))
 
 		rs := rr.Result()
 		assert.Equal(t, rs.StatusCode, http.StatusInternalServerError)
@@ -41,7 +41,7 @@ func TestLogError(t *testing.T) {
 
 	r := httptest.NewRequest("GET", "/", nil)
 
-	app.logError(r, errors.New("error message"))
+	app.errors.logError(r, errors.New("error message"))
 	log := logBuf.String()
 
 	assert.StringContains(t, log, `level=ERROR msg="error message" method=GET uri=/`)
@@ -55,7 +55,7 @@ func TestResponses(t *testing.T) {
 		r := httptest.NewRequest("GET", "/", nil)
 		e := errors.New("error message")
 
-		app.badRequest(rr, r, e)
+		app.errors.badRequest(rr, r, e)
 
 		rs := rr.Result()
 		body := read(t, rs.Body)
@@ -71,7 +71,7 @@ func TestResponses(t *testing.T) {
 			"field": "this field got an error",
 		}
 
-		app.failedValidationResponse(rr, r, errors)
+		app.errors.failedValidationResponse(rr, r, errors)
 
 		rs := rr.Result()
 		body := read(t, rs.Body)
@@ -84,7 +84,7 @@ func TestResponses(t *testing.T) {
 		rr := httptest.NewRecorder()
 		r := httptest.NewRequest("GET", "/", nil)
 
-		app.notFoundResponse(rr, r)
+		app.errors.notFoundResponse(rr, r)
 
 		rs := rr.Result()
 		body := read(t, rs.Body)
