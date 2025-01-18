@@ -47,6 +47,11 @@ func (h httpErrors) notFoundResponse(w http.ResponseWriter, r *http.Request) {
 	h.errorResponse(w, r, http.StatusNotFound, message)
 }
 
+func (h httpErrors) invalidCredentialsResponse(w http.ResponseWriter, r *http.Request) {
+	message := "invalid authentication credentials"
+	h.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
 func (h httpErrors) logError(r *http.Request, err error) {
 	var (
 		method = r.Method
