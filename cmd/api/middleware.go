@@ -71,7 +71,7 @@ func (app *application) requireActivatedUser(next http.HandlerFunc) http.Handler
 		user := contextGetUser(r)
 
 		if !user.Activated {
-			app.inactiveAccountResponse(w, r)
+			app.errors.inactiveAccountResponse(w, r)
 			return
 		}
 
@@ -92,7 +92,7 @@ func (app *application) requirePermission(code string, next http.HandlerFunc) ht
 		}
 
 		if !permissions.Include(code) {
-			app.notPermittedResponse(w, r)
+			app.errors.notPermittedResponse(w, r)
 			return
 		}
 

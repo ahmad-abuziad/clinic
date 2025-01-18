@@ -64,6 +64,16 @@ func (h httpErrors) authenticationRequiredResponse(w http.ResponseWriter, r *htt
 	h.errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
+func (h httpErrors) inactiveAccountResponse(w http.ResponseWriter, r *http.Request) {
+	message := "your user account must be activated to access this resource"
+	h.errorResponse(w, r, http.StatusForbidden, message)
+}
+
+func (h httpErrors) notPermittedResponse(w http.ResponseWriter, r *http.Request) {
+	message := "your user account doesn't have the necessary permissions to access this resource"
+	h.errorResponse(w, r, http.StatusForbidden, message)
+}
+
 func (h httpErrors) logError(r *http.Request, err error) {
 	var (
 		method = r.Method
