@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/ahmad-abuziad/clinic/internal/assert"
 )
@@ -29,12 +30,19 @@ func TestCreateAuthenticationTokenHandler(t *testing.T) {
 		rsBody := read(t, rs.Body)
 
 		var response struct {
-			Token string `json:"token"`
+			AuthToken struct {
+				Token  string    `json:"token"`
+				Expiry time.Time `json:"expiry"`
+			} `json:"authentication_token"`
 		}
 
 		json.Unmarshal(rsBody, &response)
-		//assert.Equal(t, response.Token, "token")
-		//assert.Equal(t, len(response.Token), 26)
+		assert.Equal(t, len(response.AuthToken.Token), 26)
+
+		delay := 5 * time.Second
+		tomorrow := time.Now().Add(24 * time.Hour)
+		diff := tomorrow.Sub(response.AuthToken.Expiry)
+		assert.Equal(t, diff <= delay, true)
 	})
 
 	tests := []struct {

@@ -53,14 +53,16 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 
 	if !match {
 		app.errors.invalidCredentialsResponse(w, r)
+		return
 	}
 
 	token, err := app.models.Tokens.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
 	if err != nil {
 		app.errors.serverErrorResponse(w, r, err)
+		return
 	}
 
-	err = writeJSON(w, http.StatusCreated, envelope{"token": token}, nil)
+	err = writeJSON(w, http.StatusCreated, envelope{"authentication_token": token}, nil)
 	if err != nil {
 		app.errors.serverErrorResponse(w, r, err)
 	}

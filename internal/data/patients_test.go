@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -48,8 +47,6 @@ func TestValidatePatient(t *testing.T) {
 			Gender:      "P",
 			DateOfBirth: time.Now().Add(1 * time.Hour),
 		}
-
-		fmt.Println(len(patient.FirstName))
 
 		ValidatePatient(v, patient)
 

@@ -52,6 +52,18 @@ func (h httpErrors) invalidCredentialsResponse(w http.ResponseWriter, r *http.Re
 	h.errorResponse(w, r, http.StatusUnauthorized, message)
 }
 
+func (h httpErrors) invalidAuthenticationTokenResponse(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("WWW-Authenticate", "Bearer")
+
+	message := "invalid or missing authentication token"
+	h.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
+func (h httpErrors) authenticationRequiredResponse(w http.ResponseWriter, r *http.Request) {
+	message := "you must be authenticated to access this resource"
+	h.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
 func (h httpErrors) logError(r *http.Request, err error) {
 	var (
 		method = r.Method
